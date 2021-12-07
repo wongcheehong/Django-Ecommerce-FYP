@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+(% load static %}
+
+{% block title %}
+    Product list
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row p-5">
+            <div class="col-lg-2 sidebar mb-3">
+                <nav class="nav nav-pills flex-column bg-light border rounded p-3 w-100">
+                    <h5 class="mt-2">Category</h5>
+                    <a class="nav-link row {% if not category_slug %}active{% endif %}" href="{% url "shop:product_list" %}">All</a>
+                    {% for category in categories %}
+                        <a class="nav-link row {% if category.slug == category_slug %}active{% endif %}" href="{{ category.get_absolute_url }}">{{ category.name|capfirst }}</a>
+                    {% endfor %}
+                </nav>
+            </div>
+            <div class="col-lg-10">
+                <div class="row">
+                    {% for product in products %}
+                    <div class="col-xl-3 col-md-4 col-12 mb-3 d-flex">
+                        <div class="card p-2 w-100">
+                            <div class="inner">
+                                <a href="{{ product.get_absolute_url }}">
+                                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                                </a>
+                            </div>
+                            <div class="card-body">
+                                <a href="{{ product.get_absolute_url }}" class="text-decoration-none">
+                                    <h5 class="card-title">{{ product.name|truncatechars:30 }}</h5>
+                                </a>
+                                <h6 class="card-subtitle mb-2 text-muted">RM {{ product.price }}</h6>
+                                <p class="card-text">{{ product.description|truncatechars:100 }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <ul class="pagination justify-content-center">
+
+        {% if products.has_previous %}
+            <li class="page-item">
+                    <a class="page-link" href="?page={{ products.previous_page_number }}">Previous</a>
+            </li>
+        {% endif %}
+        {% for i in products.paginator.page_range %}
+            <li class="page-item {% if products.number == i %}active{% endif %}">
+                <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+            </li>
+        {% endfor %}
+        {% if products.has_next %}
+            <li class="page-item">
+                   <a class="page-link" href="?page={{ products.next_page_number }}">Next</a>
+            </li>
+        {% endif %}
+
+    </ul>
+
+
+{% endblock %}
+

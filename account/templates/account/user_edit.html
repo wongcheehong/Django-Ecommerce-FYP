@@ -1,0 +1,30 @@
+{% extends 'base.html'%}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block style %}{% endblock %}
+
+{% block title %} User Profile {% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row bg-light m-5  py-3 pr-3">
+        {% include 'account/account_sidebar.html' %}
+        <div class="col-md-8 justify-content-center border rounded pb-3">
+            <h1>Edit your account</h1>
+            <p>You can edit your account using the following form:</p>
+            <form action="{% url "user_edit" %}" method="post" enctype="multipart/form-data">
+                <div class="profile-pic row justify-content-center my-2">
+                    {% if request.user.profile.photo %}
+                    <img src="{{ request.user.profile.photo.url }}" width="300" height="300">
+                    {% else %}
+                    <img src="{% static 'img/profile.svg' %}" width="300" height="300">
+                    {% endif %}
+                </div>
+                {% crispy user_form %}
+                {% crispy profile_form %}
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

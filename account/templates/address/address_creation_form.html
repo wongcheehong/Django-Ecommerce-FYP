@@ -1,0 +1,66 @@
+{% load crispy_forms_tags %}
+{% load static %}
+
+<form id="address_creation_form" action="{% url 'address_create' %}" method="POST">
+    {% csrf_token %}
+
+
+    <div class='address_form'>
+
+        <div class="md-form">
+            <label for="fullName">Full name</label>
+            <input type="text" name="address_name" maxlength="100" required id="id_address_name" class="form-control" placeholder="John Doe">
+        </div>
+
+        <div class="md-form mb-2">
+            <label for="address">Address</label>
+            <input type="text" name="address" placeholder="1-1, Jalan A, Taman B" maxlength="100" required id="id_address" class='form-control' />
+        </div>
+
+        <div class="row">
+          <div class="col-lg-4 col-md-12">
+             <div class="form-group">
+                <label for="address_state" class="requiredField">State</label>
+                <div class="state">
+                    <select name="address_state" id="id_address_state" class="select form-control">
+                        <option value="Selangor">Selangor</option>
+                        <option value="Kuala Lumpur">Kuala Lumpur</option>
+                        <option value="Johor">Johor</option>
+                        <option value="Sarawak">Sarawak</option>
+                        <option value="Sabah">Sabah</option>
+                        <option value="Perak">Perak</option>
+                        <option value="Penang">Penang</option>
+                        <option value="Kedah">Kedah</option>
+                        <option value="Pahang">Pahang</option>
+                        <option value="Negeri Sembilan">Negeri Sembilan</option>
+                        <option value="Kelantan">Kelantan</option>
+                        <option value="Terengganu">Terengganu</option>
+                        <option value="Melaka">Melaka</option>
+                        <option value="Putrajaya">Putrajaya</option>
+                        <option value="Perlis">Perlis</option>
+                        <option value="Labuan">Labuan</option>
+                    </select>
+                </div>
+             </div>
+          </div>
+
+          <div class="col-lg-4 col-md-7">
+            <label for="city">City</label>
+            <input type="text" name="address_city" maxlength="30" required id="id_address_city" class='form-control' placeholder="City">
+          </div>
+
+          <div class="col-lg-4 col-md-5">
+            <label for="address_zip">Zip</label>
+            <input type='text' name="address_zip" maxlength="5" pattern="\d{5}"
+                   oninvalid="this.setCustomValidity('5 digits numbers only')"
+                   onchange="try{setCustomValidity('')}catch(e){}"
+                   oninput="setCustomValidity(' ')"
+                   required id="id_address_zip" placeholder="Zip Code"
+                   class='form-control' />
+          </div>
+        </div>
+    </div>
+</form>
+
+
+<script src="{% static "js/create_address_validation.js" %}"></script>

@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block style %}
+    <link rel="stylesheet" href="{% static "css/glide.core.min.css" %}">
+    <link rel="stylesheet" href="{% static "css/glide.theme.min.css" %}">
+{% endblock %}
+
+{% block title %}
+    Homepage
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid bg-light">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-2 my-auto">
+                    <h1>Latest Products 2021</h1>
+                </div>
+                <div class="col-lg-10 mt-3">
+                    <div class="glide">
+                        <div class="glide__track" data-glide-el="track">
+                            <ul class="glide__slides d-flex">
+                                {% for product in latest_products %}
+                                    <li class="glide__slide" style="height: 100%;">
+                                        <div class="card h-100">
+                                            <a href="{{ product.get_absolute_url }}">
+                                                <img src="{{ product.image.url }}" class="carousel-image" alt="{{ product.name }}">
+                                            </a>
+                                            <div class="card-body text-center">
+                                                <a href="{{ product.get_absolute_url }}" class="text-decoration-none">
+                                                    <h6 class="card-title">{{ product.name|truncatechars:20 }}</h6>
+                                                </a>
+                                                <h6 class="card-subtitle mb-2 text-muted">RM {{ product.price }}</h6>
+                                           </div>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <div class="glide__arrows " data-glide-el="controls">
+                            <button class="glide__arrow glide__arrow--left text-dark border-0 shadow-none btn-lg" style="left: 10px;" data-glide-dir="<"><i class="fas fa-chevron-circle-left"></i></button>
+                            <button class="glide__arrow glide__arrow--right text-dark border-0 shadow-none btn-lg" style="right: 10px;" data-glide-dir=">"><i class="fas fa-chevron-circle-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+            <div class="row">
+                <div class="col">
+                    <h1 class="text-center">All Products</h1>
+                </div>
+            </div>
+            <div class="row">
+                {% for product in products %}
+                <div class="col-md-4 col-12 mb-3 d-flex">
+                    <div class="card p-2 w-100">
+                        <div class="inner">
+                            <a href="{{ product.get_absolute_url }}">
+                                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <a href="{{ product.get_absolute_url }}" class="text-decoration-none">
+                                <h5 class="card-title">{{ product.name|truncatechars:30 }}</h5>
+                            </a>
+                            <h6 class="card-subtitle mb-2 text-muted">RM {{ product.price }}</h6>
+                            <p class="card-text">{{ product.description|truncatechars:100 }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <ul class="pagination justify-content-center">
+                {% if products.has_previous %}
+                    <li class="page-item">
+                            <a class="page-link" href="?page={{ products.previous_page_number }}">Previous</a>
+                    </li>
+                {% endif %}
+                {% for i in products.paginator.page_range %}
+                    <li class="page-item {% if products.number == i %}active{% endif %}">
+                        <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                    </li>
+                {% endfor %}
+                {% if products.has_next %}
+                    <li class="page-item">
+                           <a class="page-link" href="?page={{ products.next_page_number }}">Next</a>
+                    </li>
+                {% endif %}
+            </ul>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script src="https://cdn.jsdelivr.net/npm/@glidejs/glide"></script>
+    <script src="{% static "js/app.js" %}"></script>
+{% endblock %}

@@ -1,0 +1,11 @@
+.idea
+venv
+staticfiles
+__pycache__/
+*.pyc
+ngrok.exe
+cert.crt
+cert.key
+migrations/
+*.sql
+media/

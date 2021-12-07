@@ -1,0 +1,414 @@
+{% extends 'base.html'%}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block style %}
+<style>
+   @media (min-width: 767px) {
+        .modal-dialog {
+            max-width: 80%;
+        }
+   }
+</style>
+{% endblock %}
+{% block title %} User Profile {% endblock %}
+{% block content %}
+
+
+<div class="container">
+    <div class="row bg-light m-5 py-3 pr-3">
+        {% include 'account/account_sidebar.html' %}
+        <div class="col-md-8 justify-content-center border rounded pb-3">
+            {% if default_shipping_address %}
+            <h1>Address Book</h1>
+            <p>Below are the list of your address:</p>
+            <form action="{% url 'change_shipping_default' %}" method="POST" class="card-body">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-9">
+                        <h3>Shipping address</h3>
+                    </div>
+                    <div class="col-md-3 px-0">
+                        <button type="button" class="btn btn-link shadow-none pr-0" data-toggle="modal" data-target="#CreateAddress">
+                        Create Address
+                        </button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <div  class="d-flex justify-content-between">
+                            <h5 id="shipping_name">{{ default_shipping_address.address_name }}</h5>
+                            <button type="button" class="btn btn-link p-0 shadow-none" data-toggle="modal" data-target="#editShippingModal">Change</button>
+                        </div>
+                        <p class="card-text" id="shipping_adddress">
+                            {{ default_shipping_address.street_address }} <br>
+                            {{ default_shipping_address.zip }}, {{ default_shipping_address.city }} <br>
+                            {{ default_shipping_address.state }}
+                        </p>
+                    </div>
+                </div>
+                <!-- Edit Shipping Address Modal -->
+                <div class="modal fade" id="editShippingModal" tabindex="-1" role="dialog" aria-labelledby="editShippingModal" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered " role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editShippingModalTitle">Shipping Address</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <table class="table table-responsive-xl">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th scope="col">Option</th>
+                                            <th scope="col">Full Name</th>
+                                            <th scope="col">Address</th>
+                                            <th scope="col">City-State-Zip</th>
+                                            <th scope="col"></th>
+                                            <th scope="col"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><input name="select_shipping" checked type="radio" value="{{ default_shipping_address.id }}"></td>
+                                            <th scope="row">{{ default_shipping_address.address_name }}</th>
+                                            <td>{{ default_shipping_address.street_address }}</td>
+                                            <td>{{ default_shipping_address.city }}-{{ default_shipping_address.state }}-{{ default_shipping_address.zip }}</td>
+                                            <td>
+                                                <h6>Default</h6>
+                                            </td>
+                                            <td><button type="button" class="edit-address btn btn-link p-0 shadow-none" data-toggle="modal" data-target="#EditAddressModal" data-id="{{ default_shipping_address.id }}">Edit</button></td>
+                                        </tr>
+                                        {% for address in shipping_address %}
+                                        <tr>
+                                            <td><input name="select_shipping" type="radio" value="{{ address.id }}"></td>
+                                            <th scope="row">{{ address.address_name }}</th>
+                                            <td>{{ address.street_address }}</td>
+                                            <td>{{ address.city }}-{{ address.state }}-{{ address.zip }}</td>
+                                            <td><a href=""></a></td>
+                                            <td><button type="button" class="edit-address btn btn-link p-0 shadow-none" data-toggle="modal" data-target="#EditAddressModal" data-id="{{ address.id }}">Edit</button></td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button id="delete_shipping" type="button" class="btn btn-danger" >Delete</button>
+                                <button id="save_shipping " type="submit" class="btn btn-primary">Save as default</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <hr>
+            <form action="{% url 'change_billing_default' %}" method="POST" class="card-body">
+                {% csrf_token %}
+                <h3>Billing address</h3>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <h5 id="billing_name">{{ default_billing_address.address_name }}</h5>
+                            <button type="button" class="btn btn-link p-0 shadow-none" data-toggle="modal" data-target="#editBillingModal">Change</button>
+                        </div>
+                        <p id="billing_address" class="card-text">
+                            {{ default_billing_address.street_address }} <br>
+                            {{ default_billing_address.zip }}, {{ default_billing_address.city }} <br>
+                            {{ default_billing_address.state }}
+                        </p>
+                    </div>
+                </div>
+                <!-- Address Create Modal -->
+                <div class="modal fade" id="editBillingModal" tabindex="-1" role="dialog" aria-labelledby="editBillingModal" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editBillingModalTitle">Billing Address</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <table class="table table-responsive-xl">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th scope="col">Option</th>
+                                            <th scope="col">Full Name</th>
+                                            <th scope="col">Address</th>
+                                            <th scope="col">City-State-Zip</th>
+                                            <th scope="col"></th>
+                                            <th scope="col"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><input name="select_billing" checked type="radio" value="{{ default_billing_address.id }}"></td>
+                                            <th scope="row">{{ default_billing_address.address_name }}</th>
+                                            <td>{{ default_billing_address.street_address }}</td>
+                                            <td>{{ default_billing_address.city }}-{{ default_billing_address.state }}-{{ default_billing_address.zip }}</td>
+                                            <td>
+                                                <h6>Default</h6>
+                                            </td>
+                                            <td><button type="button" class="edit-address btn btn-link p-0 shadow-none" data-toggle="modal" data-target="#EditAddressModal" data-id="{{ default_billing_address.id }}">Edit</button></td>
+                                        </tr>
+                                        {% for address in billing_address %}
+                                        <tr>
+                                            <td><input name="select_billing" type="radio" value="{{ address.id }}"></td>
+                                            <th>{{ address.address_name }}</th>
+                                            <td>{{ address.street_address }}</td>
+                                            <td>{{ address.city }}-{{ address.state }}-{{ address.zip }}</td>
+                                            <td></td>
+                                            <td><button type="button" class="edit-address btn btn-link p-0 shadow-none" data-toggle="modal" data-target="#EditAddressModal" data-id="{{ address.id }}">Edit</button></td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button id="delete_billing" type="button" class="btn btn-danger" >Delete</button>
+                                <button id="save_billing" type="submit" class="btn btn-primary">Save as default</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            {% else %}
+                <h1>Create an address</h1>
+                <p>Seems like you don't have any address yet. Create one?</p>
+                {% include "address/address_creation_form.html" %}
+                <div class="text-right mt-2">
+                    <input type="submit" id="save_address" form="address_creation_form" class="btn btn-info" value="Save address">
+                </div>
+            {% endif %}
+            <div class="modal fade" id="CreateAddress" tabindex="-1" role="dialog" aria-labelledby="CreateAddressTitle" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="CreateAddressTitle">Create New Address</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            {% include "address/address_creation_form.html" %}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button id="save_address" type="submit" form="address_creation_form" class="btn btn-primary">Save Address</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Edit Address Modal -->
+            <div class="modal fade" id="EditAddressModal" tabindex="-1" role="dialog" aria-labelledby="EditAddressModalTitle" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="EditAddressModalLongTitle">Edit Address Detail</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="address_edit_form" action="{% url 'update_address' %}" method="POST" class="card-body">
+                                {% csrf_token %}
+                                <div class='address_form'>
+                                    <input type="hidden" name="address_id" id="address_id" value="">
+                                    <div class="md-form">
+                                        <label for="address_name">Full name</label>
+                                        <input type="text" name="address_name" maxlength="100" required id="address_name" class="form-control" placeholder="John Doe">
+                                    </div>
+                                    <div class="md-form mb-2">
+                                        <label for="address">Address</label>
+                                        <input type="text" name="address" placeholder="1-1, Jalan A, Taman B" maxlength="100" required id="address" class="form-control" />
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-4 col-md-12">
+                                            <div class="form-group">
+                                                <label for="address_state" class="requiredField">State</label>
+                                                <div class="state">
+                                                    <select name="address_state" id="address_state" class="select form-control">
+                                                        <option value="Selangor">Selangor</option>
+                                                        <option value="Kuala Lumpur">Kuala Lumpur</option>
+                                                        <option value="Johor">Johor</option>
+                                                        <option value="Sarawak">Sarawak</option>
+                                                        <option value="Sabah">Sabah</option>
+                                                        <option value="Perak">Perak</option>
+                                                        <option value="Penang">Penang</option>
+                                                        <option value="Kedah">Kedah</option>
+                                                        <option value="Pahang">Pahang</option>
+                                                        <option value="Negeri Sembilan">Negeri Sembilan</option>
+                                                        <option value="Kelantan">Kelantan</option>
+                                                        <option value="Terengganu">Terengganu</option>
+                                                        <option value="Melaka">Melaka</option>
+                                                        <option value="Putrajaya">Putrajaya</option>
+                                                        <option value="Perlis">Perlis</option>
+                                                        <option value="Labuan">Labuan</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4 col-md-7">
+                                            <label for="address_city">City</label>
+                                            <input type="text" name="address_city" maxlength="30" required id="address_city" class='form-control' placeholder="City">
+                                        </div>
+                                        <div class="col-lg-4 col-md-5">
+                                            <label for="address_zip">Zip</label>
+                                            <input type='text' name="address_zip" maxlength="5" pattern="\d{5}"
+                                                oninvalid="this.setCustomValidity('5 digits numbers only')"
+                                                onchange="try{setCustomValidity('')}catch(e){}"
+                                                oninput="setCustomValidity(' ')"
+                                                required id="address_zip" placeholder="Zip Code"
+                                                class='form-control' />
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button id="edit-address-btn" type="submit" form="address_edit_form" class="btn btn-primary">Edit Address</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+{% endblock %}
+
+{% block script %}
+    <script>
+        $(document).ready(function(){
+            // Create Address
+            $('#address_creation_form').validate({
+                errorClass: "invalid-feedback",
+                highlight: function(element, errorClass, validClass) {
+                    $(element).next().addClass(errorClass);
+                },
+                unhighlight: function(element, errorClass, validClass) {
+                    $(element).next().removeClass(errorClass);
+                },
+                rules:{
+                    address_name:{required:true},
+                    address:{required:true},
+                    address_state:{required:true},
+                    address_city:{required:true},
+                    address_zip:{required:true, number:true}
+                },
+                submitHandler: function(form){
+                    $.post({
+                    url: $('#address_creation_form').attr('action'),
+                    data: {
+                        address_name: $('#id_address_name').val(),
+                        address: $('#id_address').val(),
+                        address_state: $('#id_address_state').val(),
+                        address_city: $('#id_address_city').val(),
+                        address_zip: $('#id_address_zip').val(),
+                    },
+                    success: function(response){
+                        location.reload();
+                    },
+                    dataType: 'json'
+                });
+                }
+            });
+
+            // Edit address
+            $('.edit-address').click(function(e){
+               e.preventDefault();
+               $(this).closest('.modal').modal('hide');
+               $("label.invalid-feedback").remove();
+               $.get({
+                  url: $('#address_edit_form').attr('action'),
+                  data: {
+                     id: $(this).data('id')
+                  },
+                  success: function(response){
+                    let obj = JSON.parse(response);
+                    obj = obj[0];
+                    $('#address_id').val(obj['pk'])
+                    $('#address_name').val(obj['fields']['address_name'])
+                    $('#address').val(obj['fields']['street_address'])
+                    $('#address_state').val(obj['fields']['state'])
+                    $('#address_city').val(obj['fields']['city'])
+                    $('#address_zip').val(obj['fields']['zip'])
+                  },
+                  dataType: 'json'
+               });
+            });
+
+            $('#address_edit_form').validate({
+                errorClass: "invalid-feedback",
+                highlight: function(element, errorClass, validClass) {
+                    $(element).next().addClass(errorClass);
+                },
+                unhighlight: function(element, errorClass, validClass) {
+                    $(element).next().removeClass(errorClass);
+                },
+                rules:{
+                    address_name:{required:true},
+                    address:{required:true},
+                    address_state:{required:true},
+                    address_city:{required:true},
+                    address_zip:{required:true, number:true}
+                },
+                submitHandler: function(form){
+                    $.post({
+                        url: $('#address_edit_form').attr('action'),
+                        data: {
+                            id: $('#address_id').val(),
+                            address_name: $('#address_name').val(),
+                            address: $('#address').val(),
+                            address_state: $('#address_state').val(),
+                            address_city: $('#address_city').val(),
+                            address_zip: $('#address_zip').val(),
+                        },
+                        success: function(response){
+                            location.reload();
+                        },
+                        dataType: 'json'
+                    });
+                }
+            });
+
+            // Delete Address
+            $('#delete_shipping').click(function(){
+                let radioValue = $("input[name='select_shipping']:checked").val();
+                if(radioValue){
+                    $.post({
+                        url: '{% url "delete_address" %}',
+                        data: {
+                            id: radioValue
+                        },
+                        success: function(response){
+                            location.reload();
+                        },
+                        dataType: 'json'
+                    });
+                }
+            });
+
+            $('#delete_billing').click(function(){
+                let radioValue = $("input[name='select_billing']:checked").val();
+                if(radioValue){
+                    $.post({
+                        url: '{% url "delete_address" %}',
+                        data: {
+                            id: radioValue
+                        },
+                        success: function(response){
+                            location.reload();
+                        },
+                        dataType: 'json'
+                    });
+                }
+            });
+        });
+    </script>
+{% endblock %}

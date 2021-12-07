@@ -1,0 +1,52 @@
+{% load static %}
+<html>
+<body>
+  <h1>Sporty</h1>
+  <img src="{% static 'img/logo.png' %}" style="width:100px; height:100px;" alt="logo">
+  <p>
+    Invoice no. {{ order.id }}</br>
+    <span class="secondary">
+      Created: {{ order.created|time:"H:i" }} {{ order.created|date:"j M Y" }}<br>
+      Payment: {{ order.payment_time|time:"H:i" }} {{ order.payment_time|date:"j M Y" }}
+    </span>
+  </p>
+
+  <h3>Bill to</h3>
+  <p>
+    {{ order.billing_name }}<br>
+    {{ order.billing_address }}
+  </p>
+
+  <h3>Bill to</h3>
+  <p>
+    {{ order.shipping_name }}<br>
+    {{ order.shipping_address }}
+  </p>
+
+  <h3>Items bought</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Product</th>
+        <th>Price</th>
+        <th>Quantity</th>
+        <th>Cost</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in order.order_items.all %}
+        <tr class="row{% cycle "1" "2" %}">
+          <td>{{ item.product.name }}</td>
+          <td class="num">RM{{ item.price }}</td>
+          <td class="num">{{ item.quantity }}</td>
+          <td class="num">RM{{ item.get_total_item_price }}</td>
+        </tr>
+      {% endfor %}
+      <tr class="total">
+        <td colspan="3">Total</td>
+        <td class="num">RM{{ order.amount }}</td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+</html>

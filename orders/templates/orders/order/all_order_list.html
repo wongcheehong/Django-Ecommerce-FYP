@@ -1,0 +1,93 @@
+{% load static %}
+
+{% for order in all_orders %}
+<div class="card">
+    {% if not order.paid and not order.cancelled %}
+        <h5 class="card-header d-flex justify-content-between">
+            <span>Order ID: {{ order.id }}</span>
+            <span>Status: To Pay</span>
+        </h5>
+    {% elif order.paid and not order.being_delivered %}
+        <h5 class="card-header d-flex justify-content-between">
+            <span>Order ID: {{ order.id }}</span>
+            <span>Status: To Ship</span>
+        </h5>
+    {% elif order.paid and order.being_delivered and not order.received %}
+        <h5 class="card-header d-flex justify-content-between">
+            <span>Order ID: {{ order.id }}</span>
+            <span>Status: To Receive</span>
+        </h5>
+    {% elif order.paid and order.being_delivered  and order.received %}
+        <h5 class="card-header d-flex justify-content-between">
+            <span>Order ID: {{ order.id }}</span>
+            <span>Status: Completed</span>
+        </h5>
+    {% else %}
+        <h5 class="card-header d-flex justify-content-between">
+            <span>Order ID: {{ order.id }}</span>
+            <span>Status: Cancelled</span>
+        </h5>
+    {% endif%}
+    <div class="card-body">
+        {% for item in order.order_items.all %}
+        <a href='{% url 'shop:product_detail' id=item.product.id slug=item.product.slug %}' class="text-decoration-none text-dark">
+            <div class="card flex-row flex-wrap mb-2">
+                <div class="card-header border-0">
+                    <img src="{{ item.product.image.url }}" alt="" width=80 height=80>
+                </div>
+                <div class="card-block px-2">
+                    <h4 class="card-title">{{ item.product.name }}</h4>
+                    <p class="card-text">
+                        Price: RM {{ item.price }}<br>
+                        <span class="text-muted">&times;{{ item.quantity }}</span>
+                    </p>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    <div class="card-footer py-2">
+    <div class="text-muted d-flex justify-content-end">
+        <p class="p-1 m-0 align-self-center">
+        Total : RM {{ order.get_total_cost }}
+        </p>
+    </div>
+    <div class="text-muted d-flex justify-content-between">
+        <div class="align-self-center">
+            {% if order.payment_time %}
+                <p class="m-0">Payment Time:&nbsp;{{ order.payment_time|date:"d M Y" }} {{ order.payment_time|time:"h:i A" }}</p>
+            {% endif %}
+        </div>
+        <div>
+            {% if order.paid %}<a href="{% url 'orders:invoice_pdf' order.id %}" class="btn btn-secondary">Invoice</a>{% endif %}
+            {% if order.received or order.cancelled or not order.being_delivered and order.paid %}
+            <a href="{% url 'orders:buy_again' order.id %}" class="btn btn-info mr-1"><i class="fas fa-shopping-cart"></i>&nbsp;Buy again</a>
+            {% endif %}
+            {% if not order.paid and not order.cancelled %}
+                <a href="{% url 'orders:payment' order.id %}" class="btn btn-primary mr-1"><i class="fas fa-credit-card"></i>&nbsp;Pay Now</a>
+                <button type="button" data-id="{{ order.id }}" class="cancel-btn btn btn-danger mr-1"><i class="fas fa-times"></i>&nbsp;Cancel order</button>
+            {% endif %}
+            {% if order.being_delivered and not order.received %}
+                <button type="button" data-id="{{ order.id }}" class="receive-btn btn btn-success mr-1"><i class="fas fa-check"></i>&nbsp;Receive</button>
+            {% endif%}
+        </div>
+    </div>
+    </div>
+</div>
+<br>
+{% empty %}
+    <div class="card-body">
+        <div class="col-sm-12 text-center">
+            <img src="{% static 'img/order.png' %}" width="130" height="130" class="mb-4 mr-3">
+            <h3><strong>There is no order</strong></h3>
+        </div>
+    </div>
+{% endfor %}
+
+<script>
+let cancel_url = '{% url 'orders:cancel_order' %}'
+let receive_url = '{% url 'orders:receive_order' %}'
+console.log(cancel_url, receive_url)
+</script>
+<script src="{% static "js/cancel.js" %}"></script>
+<script src="{% static "js/receive.js" %}"></script>

@@ -1,0 +1,54 @@
+.asteriskField {
+    color: red;
+}
+
+@media only screen and (max-width: 766px)  {
+    .card-img-top {
+        width: 100%;
+        height:25vw;
+        object-fit: contain;
+    }
+}
+
+@media only screen and (min-width: 766px) {
+    .card-img-top {
+        width: 100%;
+        height: 25vw;
+        object-fit: cover;
+    }
+}
+
+.inner{
+    overflow: hidden;
+}
+
+.inner img {
+    transition: all 1.3s ease;
+}
+
+.inner:hover img{
+    transform: scale(1.5);
+}
+
+.carousel-image {
+    width: 100%;
+    height: 10vw;
+    object-fit: contain;
+}
+
+#lblCartCount {
+    font-size: 12px;
+    background: #ff0000;
+    color: #fff;
+    padding: 0 5px;
+    vertical-align: top;
+    margin-left: -10px;
+}
+
+.badge {
+  padding-left: 9px;
+  padding-right: 9px;
+  -webkit-border-radius: 9px;
+  -moz-border-radius: 9px;
+  border-radius: 9px;
+}

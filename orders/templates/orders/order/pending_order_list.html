@@ -1,0 +1,46 @@
+{% load static %}
+
+{% for order in pending_orders %}
+<div class="card">
+	    <h5 class="card-header d-flex justify-content-between">
+            <span>Order ID: {{ order.id }}</span>
+            <span>Status: To Pay    </span>
+        </h5>
+		<div class="card-body">
+			{% for item in order.order_items.all %}
+			<a href='{% url 'shop:product_detail' id=item.product.id slug=item.product.slug %}' class="text-decoration-none text-dark">
+                <div class="card flex-row flex-wrap mb-2">
+                    <div class="card-header border-0">
+                        <img src="{{ item.product.image.url }}" alt="" width=80 height=80>
+                    </div>
+                    <div class="card-block px-2">
+                        <h4 class="card-title">{{ item.product.name }}</h4>
+                        <p class="card-text">
+                            Price: RM {{ item.price }}<br>
+                            <span class="text-muted">&times;{{ item.quantity }}</span>
+                        </p>
+                    </div>
+                </div>
+            </a>
+			{% endfor %}
+		</div>
+		<div class="card-footer py-2">
+            <div class="text-muted d-flex justify-content-end">
+                <p class="p-1 m-0 align-self-center">Total : RM {{ order.get_total_cost }}</p>
+            </div>
+            <div class="text-muted d-flex justify-content-end">
+                <a href="{% url 'orders:payment' order.id %}" class="btn btn-primary mr-1"><i class="fas fa-credit-card"></i>&nbsp;Pay Now</a>
+                <button type="button" data-id="{{ order.id }}" class="cancel-btn btn btn-danger mr-1"><i class="fas fa-times"></i>&nbsp;Cancel order</button>
+            </div>
+		</div>
+	</div>
+	<br>
+{% empty %}
+    <div class="card-body">
+        <div class="col-sm-12 text-center">
+            <img src="{% static 'img/order.png' %}" width="130" height="130" class="mb-4 mr-3">
+            <h3><strong>There is no order</strong></h3>
+        </div>
+    </div>
+{% endfor %}
+

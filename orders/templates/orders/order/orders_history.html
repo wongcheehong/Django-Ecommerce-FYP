@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block style %}
+    <style>
+    .card-footer{
+        background-color: #fffefb;
+    }
+    </style>
+{% endblock %}
+
+{% block title %} Order History {% endblock %}
+{% block content %}
+    <div class="container mt-3">
+        <ul class="nav nav-tabs nav-justified" id="myTab" role="tablist">
+          <li class="nav-item">
+            <a class="nav-link active" id="all-tab" data-toggle="tab" data-type="1" href="#all" role="tab" aria-controls="all" aria-selected="true">All</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="to-pay-tab" data-toggle="tab" data-type="2" href="#pay" role="tab" aria-controls="pay" aria-selected="false">To Pay</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="to-ship-tab" data-toggle="tab" data-type="3" href="#ship" role="tab" aria-controls="ship" aria-selected="false">To Ship</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="to-receive-tab" data-toggle="tab" data-type="4" href="#receive" role="tab" aria-controls="receive" aria-selected="false">To Receive</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="completed-tab" data-toggle="tab" data-type="5" href="#completed" role="tab" aria-controls="completed" aria-selected="false">Completed</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="cancelled-tab" data-toggle="tab" data-type="6" href="#cancelled" role="tab" aria-controls="cancelled" aria-selected="false">Cancelled</a>
+          </li>
+        </ul>
+        <div class="tab-content border p-3" id="myTabContent">
+            <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all-tab">
+                All Orders
+            </div>
+            <div class="tab-pane fade" data-id='1' id="pay" role="tabpanel" aria-labelledby="pay-tab">
+                To Pay
+            </div>
+            <div class="tab-pane fade" data-id='2' id="ship" role="tabpanel" aria-labelledby="ship-tab">
+                To ship
+            </div>
+            <div class="tab-pane fade" data-id='3' id="receive" role="tabpanel" aria-labelledby="receive-tab">
+                To receive
+            </div>
+            <div class="tab-pane fade" data-id='4' id="completed" role="tabpanel" aria-labelledby="completed-tab">
+                Completed
+            </div>
+            <div class="tab-pane fade" data-id='5' id="cancelled" role="tabpanel" aria-labelledby="cancelled-tab">
+                Cancelled
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script>
+        $(document).ready(function(){
+            $('.nav-tabs a').each(function(index, el) {
+                let $this = $(this);
+                let pane = $this.attr('href');
+                console.log(pane);
+                let type = $this.data('type');
+                let url = '{% url 'orders:orders_history' %}' + '?type=' + type;
+                console.log(url);
+                $(pane).load(url);
+              });
+        });
+    </script>
+{% endblock %}

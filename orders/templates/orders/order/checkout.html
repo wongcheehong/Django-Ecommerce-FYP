@@ -1,0 +1,363 @@
+{% extends "base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block style %}
+    <style>
+        .asteriskField {
+            display: none;
+        }
+
+        @media (min-width: 767px) {
+          .modal-dialog {
+            max-width: 80%;
+          }
+        }
+
+        .letter-stripe {
+            height: .1875rem;
+            width: 100%;
+            background-position-x: -1.875rem;
+            background-size: 7.25rem .1875rem;
+            background-image: repeating-linear-gradient(45deg,#6fa6d6,#6fa6d6 33px,transparent 0,transparent 41px,#f18d9b 0,#f18d9b 74px,transparent 0,transparent 82px);
+        }
+    </style>
+{% endblock %}
+
+{% block title %}
+    Checkout
+{% endblock %}
+
+{% block content %}
+<!--Main layout-->
+<main>
+    <div class="container">
+
+        <!-- Heading -->
+        <h2 class="my-5 h2 text-center">Checkout</h2>
+
+        <!--Grid row-->
+        <div class="row">
+
+            <!--Grid column-->
+            <div class="col-md-8 mb-4">
+
+                <!--Card-->
+                <div class="card">
+
+                    <!--Card content-->
+                    {% if default_shipping_address %}
+                        <form method="POST" class="card-body">
+                            {% csrf_token %}
+                            <div class="row justify-content-between mx-1">
+                                <div>
+                                    <h3>Shipping address</h3>
+                                </div>
+                                <button type="button" class="btn btn-link shadow-none pr-0" data-toggle="modal" data-target="#CreateAddress">
+                                    Add New Address
+                                </button>
+                            </div>
+
+                            <div class="card">
+                                <div class="letter-stripe"></div>
+                              <div class="card-body">
+                                    <div  class="d-flex justify-content-between">
+                                        <h5 id="shipping_name">{{ default_shipping_address.address_name }}</h5>
+                                        <button type="button" id="edit-shipping" class="btn btn-link p-0 shadow-none" data-toggle="modal" data-target="#editShippingModal">Edit</button>
+                                    </div>
+                                    <p class="card-text" id="shipping_adddress">
+                                        {{ default_shipping_address.street_address }} <br>
+                                        {{ default_shipping_address.zip }}, {{ default_shipping_address.city }} <br>
+                                        {{ default_shipping_address.state }}
+                                    </p>
+                              </div>
+                            </div>
+
+                            <!-- Edit Shipping Address Modal -->
+                            <div class="modal fade" id="editShippingModal" tabindex="-1" role="dialog" aria-labelledby="editShippingModal" aria-hidden="true">
+                              <div class="modal-dialog modal-dialog-centered " role="document">
+                                <div class="modal-content">
+                                  <div class="modal-header">
+                                    <h5 class="modal-title" id="editShippingModalTitle">Shipping Address</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                      <span aria-hidden="true">&times;</span>
+                                    </button>
+                                  </div>
+                                  <div class="modal-body">
+                                      <table class="table table-responsive-xl">
+                                          <thead class="thead-light">
+                                          <tr>
+                                              <th scope="col">Full Name</th>
+                                              <th scope="col">Address</th>
+                                              <th scope="col">City-State-Zip</th>
+                                              <th scope="col"></th>
+                                              <th scope="col"></th>
+                                          </tr>
+                                          </thead>
+                                          <tbody>
+                                          <tr>
+                                              <th scope="row">{{ default_shipping_address.address_name }}</th>
+                                              <td>{{ default_shipping_address.street_address }}</td>
+                                              <td>{{ default_shipping_address.city }}-{{ default_shipping_address.state }}-{{ default_shipping_address.zip }}</td>
+                                              <td>Default Shipping Address</td>
+                                              <td><input name="select_shipping" checked type="radio" value="{{ default_shipping_address.id }}"></td>
+                                          </tr>
+                                          </tbody>
+                                      </table>
+                                  </div>
+                                  <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button id="save_shipping" type="button" class="btn btn-primary">Save changes</button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                          <hr>
+                              <h3>Billing address</h3>
+                              <div class="card">
+                                  <div class="letter-stripe"></div>
+                                  <div class="card-body">
+                                  <div class="d-flex justify-content-between">
+                                            <h5 id="billing_name">{{ default_billing_address.address_name }}</h5>
+                                            <button type="button" id="edit-billing" class="btn btn-link p-0 shadow-none" data-toggle="modal" data-target="#editBillingModal">Edit</button>
+                                        </div>
+                                        <p id="billing_address" class="card-text">
+                                            {{ default_billing_address.street_address }} <br>
+                                            {{ default_billing_address.zip }}, {{ default_billing_address.city }} <br>
+                                            {{ default_billing_address.state }}
+                                        </p>
+                                  </div>
+                              </div>
+
+                           <!-- Edit Billing Address Modal -->
+                            <div class="modal fade" id="editBillingModal" tabindex="-1" role="dialog" aria-labelledby="editBillingModal" aria-hidden="true">
+                              <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                  <div class="modal-header">
+                                    <h5 class="modal-title" id="editBillingModalTitle">Billing Address</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                      <span aria-hidden="true">&times;</span>
+                                    </button>
+                                  </div>
+                                  <div class="modal-body">
+                                      <table class="table table-responsive-xl">
+                                          <thead class="thead-light">
+                                          <tr>
+                                              <th scope="col">Full Name</th>
+                                              <th scope="col">Address</th>
+                                              <th scope="col">City-State-Zip</th>
+                                              <th scope="col"></th>
+                                              <th scope="col"></th>
+                                          </tr>
+                                          </thead>
+                                          <tbody>
+                                          <tr>
+                                              <th>{{ default_billing_address.address_name }}</th>
+                                              <td>{{ default_billing_address.street_address }}</td>
+                                              <td>{{ default_billing_address.city }}-{{ default_billing_address.state }}-{{ default_billing_address.zip }}</td>
+                                              <td>Default Billing Address</td>
+                                              <td><input name="select_billing" type="radio" checked value="{{ default_billing_address.id }}"></td>
+                                      </tr>
+                                          </tbody>
+                                      </table>
+                                  </div>
+                                  <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button id="save_billing" type="button" class="btn btn-primary">Save changes</button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+
+                          <hr>
+
+{#                            <h3>Payment option</h3>#}
+{#                            <div class="d-block my-3">#}
+{#                                <div class="custom-control custom-radio">#}
+{#                                  <input id="Credit / Debit Card" name="payment_option" value="card" type="radio" class="custom-control-input" required>#}
+{#                                  <label class="custom-control-label" for="Credit / Debit Card">Credit / Debit Card</label>#}
+{#                                </div>#}
+{##}
+{#                                <div class="custom-control custom-radio">#}
+{#                                  <input id="Online Banking" name="payment_option" value="fpx" type="radio" class="custom-control-input" required>#}
+{#                                  <label class="custom-control-label" for="Online Banking">Online Banking</label>#}
+{#                                </div>#}
+{#                            </div>#}
+{#                            <hr class="mb-4">#}
+                            <input type="hidden" value="{{ default_shipping_address.id }}" id="shipping_id" name="shipping_id">
+                            <input type="hidden" value="{{ default_billing_address.id }}" id="billing_id" name="billing_id">
+                            <button class="btn btn-primary btn-lg btn-block" type="submit">Continue to checkout</button>
+                        </form>
+                    {% else %}
+                        <div class="card-body">
+                            <h3>Delivery Information</h3>
+                            {% include "address/address_creation_form.html" %}
+                            <div class="text-right mt-2">
+                                <input type="submit" id="save_address" form="address_creation_form" class="btn btn-info" value="Save address">
+                            </div>
+                        </div>
+
+                    {% endif %}
+                </div>
+                <!--/.Card-->
+
+            </div>
+            <!--Grid column-->
+
+            <!--Grid column-->
+            <div class="col-md-4 mb-4">
+
+                <!-- Heading -->
+                <h4 class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted">Your cart</span>
+                    <span class="badge badge-secondary badge-pill">{% if item_count != None %} {{item_count}} {% endif %}</span>
+                </h4>
+
+                <!-- Cart -->
+                <ul class="list-group mb-3 z-depth-1">
+                    {% for item in cart_items %}
+                    <li class="list-group-item d-flex justify-content-between lh-condensed">
+                        <div>
+                            <h6 class="my-0">{{ item.product }}</h6>
+                            <h6 class="text-muted">Quantity: {{ item.quantity }}</h6>
+                        </div>
+                        <span class="text-muted">RM {{ item.sub_total }}</span>
+                    </li>
+                    {% endfor %}
+{#                    <li class="list-group-item d-flex justify-content-between bg-light">#}
+{#                        <div class="text-success">#}
+{#                            <h6 class="my-0">Promo code</h6>#}
+{#                            <small>EXAMPLECODE</small>#}
+{#                        </div>#}
+{#                        <span class="text-success">-$5</span>#}
+{#                    </li>#}
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Total (MYR)</span>
+                        <strong>RM {{ cart.get_total_price }}</strong>
+                    </li>
+
+                </ul>
+                <!-- Cart -->
+
+                <!-- Promo code -->
+{#                <form class="card p-2">#}
+{#                    <div class="input-group">#}
+{#                        <input type="text" class="form-control" placeholder="Promo code"#}
+{#                               aria-label="Recipient's username" aria-describedby="basic-addon2">#}
+{#                        <div class="input-group-append">#}
+{#                            <button class="btn btn-secondary btn-md waves-effect m-0" type="button">Redeem</button>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                </form>#}
+                <!-- Promo code -->
+
+            </div>
+            <!--Grid column-->
+
+        </div>
+        <!--Grid row-->
+    </div>
+</main>
+<!--Main layout-->
+    <!-- Add new address -->
+        <div class="modal fade" id="CreateAddress" tabindex="-1" role="dialog" aria-labelledby="CreateAddressCenterTitle" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="CreateAddressLongTitle">Add New Address</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                {% include "address/address_creation_form.html" %}
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" form="address_creation_form" class="btn btn-primary">Save changes</button>
+              </div>
+            </div>
+          </div>
+        </div>
+    <!-- Add new address -->
+{% endblock %}
+
+{% block script %}
+    {% if default_shipping_address %}
+    <script>
+        $(document).ready(function(){
+            $("#edit-shipping").one("click", function(){
+                $.ajax({
+                  type: 'GET',
+                  url: "{% url 'orders:get_address_list' %}?addressType=S",
+                  success: function(data){
+                      const obj = JSON.parse(data);
+                      obj.forEach(function(element){
+                         $("div#editShippingModal tbody").append("<tr>" +
+                            "<th>" + element["fields"]["address_name"] + "</th>" +
+                            "<td>" + element["fields"]["street_address"] + "</td>" +
+                            "<td>" + element["fields"]["city"] + "-" + element["fields"]["state"] + "-" + element["fields"]["zip"] + "</td>" +
+                            "<td></td>" +
+                            "<td><input name=\"select_shipping\" type=\"radio\" value=\"" + element["pk"] + "\"></td>" +
+                          "</tr>");
+                      });
+                  }
+                });
+            });
+
+            $("#save_shipping").click(function(){
+                var radioValue = $("input[name='select_shipping']:checked").val();
+                if(radioValue){
+                    $("#shipping_id").attr("value", radioValue);
+                    const url = "{% url 'orders:get_address' %}?id=" + radioValue;
+                    $.get(url , function(data){
+                        const obj = JSON.parse(data);
+                        const address = obj[0]["fields"];
+                        $('#shipping_name').html(address["address_name"]);
+                        $('#shipping_adddress').html(address["street_address"] + "<br>" + address["zip"] + ", " + address["city"] + "<br>" + address["state"]);
+                    });
+                    $('#editShippingModal').modal('hide');
+                }
+            });
+
+
+            $("#edit-billing").one("click",function(e){
+                console.log("Clicked");
+                $.ajax({
+                  type: 'GET',
+                  url: "{% url 'orders:get_address_list' %}?addressType=B",
+                  success: function(data){
+                      const obj = JSON.parse(data);
+                      obj.forEach(function(element){
+                         $("div#editBillingModal tbody").append("<tr>" +
+                            "<th>" + element["fields"]["address_name"] + "</th>" +
+                            "<td>" + element["fields"]["street_address"] + "</td>" +
+                            "<td>" + element["fields"]["city"] + "-" + element["fields"]["state"] + "-" + element["fields"]["zip"] + "</td>" +
+                            "<td></td>" +
+                            "<td><input name=\"select_billing\" type=\"radio\" value=\"" + element["pk"] + "\"></td>" +
+                          "</tr>");
+							});
+						}
+					});
+				});
+
+        $("#save_billing").click(function(){
+                var radioValue = $("input[name='select_billing']:checked").val();
+                if(radioValue){
+                    $("#billing_id").attr("value", radioValue);
+                    const url = "{% url 'orders:get_address' %}?id=" + radioValue;
+                    $.get(url , function(data){
+                      const obj = JSON.parse(data);
+                        const address = obj[0]["fields"];
+                        $('#billing_name').html(address["address_name"]);
+                        $('#billing_address').html(address["street_address"] + "<br>" + address["zip"] + ", " + address["city"] + "<br>" + address["state"]);
+					          });
+                    $('#editBillingModal').modal('hide');
+                }
+            });
+        });
+    </script>
+    {% endif %}
+{% endblock %}

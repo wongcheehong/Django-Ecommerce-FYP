@@ -1,0 +1,322 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+    <div class="content">
+        <div class="row">
+            <div class="col-12">
+                <div class="card card-chart">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-sm-12 {{ direction.panel }}">
+                                <h5 class="card-category">{% trans "Total Shipments" %}</h5>
+                                <h2 class="card-title">{% trans "Performance" %}</h2>
+                            </div>
+{#                            <div class="col-sm-6">#}
+{#                                <div class="btn-group btn-group-toggle {{ direction.float }}" data-toggle="buttons">#}
+{#                                    <label class="btn btn-sm btn-primary btn-simple active" id="0">#}
+{#                                        <input type="radio" name="options" checked>#}
+{#                                        <span class="d-none d-sm-block d-md-block d-lg-block d-xl-block">{% trans "Accounts" %}</span>#}
+{#                                        <span class="d-block d-sm-none">#}
+{#                                  <i class="tim-icons icon-single-02"></i>#}
+{#                                </span>#}
+{#                                    </label>#}
+{#                                    <label class="btn btn-sm btn-primary btn-simple" id="1">#}
+{#                                        <input type="radio" class="d-none d-sm-none" name="options">#}
+{#                                        <span class="d-none d-sm-block d-md-block d-lg-block d-xl-block">{% trans "Purchases" %}</span>#}
+{#                                        <span class="d-block d-sm-none">#}
+{#                                  <i class="tim-icons icon-gift-2"></i>#}
+{#                                </span>#}
+{#                                    </label>#}
+{#                                    <label class="btn btn-sm btn-primary btn-simple" id="2">#}
+{#                                        <input type="radio" class="d-none" name="options">#}
+{#                                        <span class="d-none d-sm-block d-md-block d-lg-block d-xl-block">{% trans "Sessions" %}</span>#}
+{#                                        <span class="d-block d-sm-none">#}
+{#                                  <i class="tim-icons icon-tap-02"></i>#}
+{#                                </span>#}
+{#                                    </label>#}
+{#                                </div>#}
+{#                            </div>#}
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-area">
+                            <canvas id="chartBig1"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-4 {{ direction.panel }}">
+                <div class="card card-chart">
+                    <div class="card-header">
+                        <h5 class="card-category">{% trans "Total Shipments" %}</h5>
+                        <h3 class="card-title"><i class="tim-icons icon-bell-55 text-primary"></i>Pending Shipping: {{ order_status.not_delivered_qtty }} orders</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-area">
+                            <canvas id="OrderStatus"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 {{ direction.panel }}">
+                <div class="card card-chart">
+                    <div class="card-header">
+                        <h5 class="card-category">{% trans "Daily Order Quantity" %}</h5>
+                        <h3 class="card-title"><i class="tim-icons icon-delivery-fast text-info"></i>
+                            {{ order_counts.last.created_count }} order{{ order_counts.last.created_count|pluralize }}
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-area">
+                            <canvas id="OrderCount"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 {{ direction.panel }}">
+                <div class="card card-chart">
+                    <div class="card-header">
+                        <h5 class="card-category">{% trans "Top Selling Products" %}</h5>
+                        <h3 class="card-title"><i class="fas fa-crown tim-icons text-success"></i>{{ top_selling.first.name }}</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-area">
+                            <canvas id="TopSelling"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6 col-sm-6 text-center">
+                <div class="card card-tasks {{ direction.reverse_panel }}">
+                    <div class="card-header {{ direction.panel }}">
+                        <h6 class="title d-inline">{% trans 'Recent actions' %}</h6>
+                        <p class="card-category d-inline">{% trans 'My actions' %}</p>
+                        {% load log %}
+                        {% get_admin_log 10 as admin_log for_user user %}
+                    </div>
+                    <div class="card-body">
+                        {% if admin_log %}
+                            <div class="table-full-width table-responsive">
+                                <table class="table">
+                                    <tbody>
+                                    {% for entry in admin_log %}
+                                        <tr>
+                                            <td class="text-center">
+                                                {% if entry.is_addition %}
+                                                    <span class="fa fa-plus-circle text-success"></span>
+                                                {% endif %}
+                                                {% if entry.is_change %}
+                                                    <span class="fa fa-edit text-warning"></span>
+                                                {% endif %}
+                                                {% if entry.is_deletion %}
+                                                    <span class="fa fa-trash text-danger"></span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="{{ direction.panel }}">
+                                                <p class="title">{{ entry.object_repr }}</p>
+                                                {% if entry.content_type %}
+                                                    <p class="text-muted">
+                                                        {% filter capfirst %}{{ entry.content_type }}{% endfilter %}</p>
+                                                {% else %}
+                                                    <p class="text-muted">{% trans 'Unknown content' %}</p>
+                                                {% endif %}
+                                            </td>
+                                            <td class="td-actions">
+                                                <a href="{{ entry.get_admin_url }}" type="button" rel="tooltip" title=""
+                                                   class="btn btn-link"
+                                                   data-original-title="{{ entry.object_repr }}">
+                                                    <i class="tim-icons icon-settings"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="d-flex">{% trans 'Not available' %}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-sm-6">
+                <div class="card ">
+                    <div class="card-header {{ direction.panel }}">
+                        <h4 class="card-title">{% trans "Recent Order" %}</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table tablesorter " id="">
+                                <thead class="text-primary">
+                                <tr>
+                                    <th>
+                                        Oder ID
+                                    </th>
+                                    <th>
+                                        User
+                                    </th>
+                                    <th>
+                                        Amount
+                                    </th>
+                                    <th class="text-center">
+                                        Status
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for order in recent_orders %}
+                                <tr>
+                                    <td>
+                                        {{ order.id }}
+                                    </td>
+                                    <td>
+                                        {{ order.user.username }}
+                                    </td>
+                                    <td>
+                                        RM{{ order.amount }}
+                                    </td>
+                                    <td class="text-center">
+                                    {% if not order.paid and not order.cancelled %}
+                                        Pending Payment
+                                    {% elif order.paid and not order.being_delivered %}
+                                        Pending Shipping
+                                    {% elif order.paid and order.being_delivered and not order.received %}
+                                        Pending Receive
+                                    {% elif order.paid and order.being_delivered  and order.received %}
+                                        Completed
+                                    {% else %}
+                                        Cancelled
+                                    {% endif%}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extrascript %}
+    <script src="https://kit.fontawesome.com/503ee0d328.js" crossorigin="anonymous"></script>
+    <script>
+    function convertToText(ascii) {
+      let tempDiv = document.createElement('DIV');
+      tempDiv.innerHTML = ascii;
+      return tempDiv.textContent || tempDiv.innerText || '';
+    }
+
+    let ctx = document.getElementById('chartBig1').getContext('2d');
+    let myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [{% for item in paid_orders %}'{{ item.date|date:"d/m" }}',{% endfor %}],
+            datasets: [{
+                label: 'Last 30 days sales',
+                data: [{% for item in paid_orders %}{{ item.total }},{% endfor %}],
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            },
+            responsive:true,
+            maintainAspectRatio: false
+        }
+    });
+
+    ctx = document.getElementById('OrderCount').getContext('2d');
+    mychart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: [{% for item in order_counts %}'{{ item.date|date:"d/m" }}',{% endfor %}],
+            datasets: [{
+                label: 'Last 7 days order count',
+                data: [{% for item in order_counts %}{{ item.created_count }},{% endfor %}],
+                "backgroundColor":["rgba(255, 99, 132, 0.2)","rgba(255, 159, 64, 0.2)","rgba(255, 205, 86, 0.2)","rgba(75, 192, 192, 0.2)","rgba(54, 162, 235, 0.2)","rgba(153, 102, 255, 0.2)","rgba(201, 203, 207, 0.2)"],
+                "borderColor":["rgb(255, 99, 132)","rgb(255, 159, 64)","rgb(255, 205, 86)","rgb(75, 192, 192)","rgb(54, 162, 235)","rgb(153, 102, 255)","rgb(201, 203, 207)"],
+                "borderWidth": 1
+            }]
+        },
+        options: {
+            tooltip: {
+                enabled: false
+            },
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            },
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+    ctx = document.getElementById('TopSelling').getContext('2d');
+    mychart = new Chart(ctx, {
+                    type: 'pie',
+					data: {
+                        datasets: [{
+                            data: [{% for item in top_selling %}{{ item.quantity}},{% endfor %}],
+                            backgroundColor: [
+                              "#F7464A",
+                              "#3e3cf2",
+                              "#6fe43d",
+                              "#a72df4",
+                              "#46BFBD",
+                              "#FDB45C",
+                              "#949FB1",
+                              "#4D5360",
+                            ],
+                        }],
+                        labels: [{% for item in top_selling %}convertToText('{{ item.name }}'),{% endfor %}],
+                    },
+					options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        legend: {
+                             display: false,
+                        },
+                    }
+
+				});
+
+    ctx = document.getElementById('OrderStatus').getContext('2d');
+    mychart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ["Pending shipping", "Pending Receive", "Completed"],
+            datasets: [{
+                "label": "Order Status",
+                "data": [{{ order_status.not_delivered_qtty }}, {{ order_status.delivered_qtty }}, {{ order_status.completed_qtty }}],
+                "backgroundColor": ["rgb(255, 99, 132)", "rgb(54, 162, 235)", "rgb(255, 205, 86)"]
+            }]
+        },
+        options: {
+            responsive: true,
+            legend: {
+                 position: 'right'
+            },
+        }
+    });
+    </script>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block style %}
+    <style>
+        body, html {
+            height: 100%;
+        }
+    </style>
+{% endblock %}
+{% block title %}Registration{% endblock %}
+
+{% block content %}
+    <div class="container h-100">
+        <div class="row justify-content-center align-items-center h-100">
+            <div class="col-xl-8 col-lg-10 col-md-11 bg-light p-5">
+                <h1 class="display-4 py-3 text-center">Sign up</h1>
+                <div class="px-2">
+                    <form  action="{% url 'register' %}" method="post">
+                        {% crispy form %}
+                        <script src='https://www.google.com/recaptcha/api.js'></script>
+                        <div class="g-recaptcha" data-sitekey="{{ key }}"></div>
+                        <button type="submit" class="btn btn-primary btn btn-info btn-block mt-3">Create my account</button>
+                    </form>
+                    <div class="text-center pt-3">
+                        <p class="text-muted">Already have account? <a href="{% url "login" %}">Login now</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+

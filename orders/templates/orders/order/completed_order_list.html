@@ -1,0 +1,51 @@
+{% load static %}
+{% for order in completed_orders %}
+<div class="card">
+    <h5 class="card-header d-flex justify-content-between">
+        <span>Order ID: {{ order.id }}</span>
+        <span>Status: Completed</span>
+    </h5>
+    <div class="card-body">
+        {% for item in order.order_items.all %}
+        <a href='{% url 'shop:product_detail' id=item.product.id slug=item.product.slug %}' class="text-decoration-none text-dark">
+            <div class="card flex-row flex-wrap mb-2">
+                <div class="card-header border-0">
+                    <img src="{{ item.product.image.url }}" alt="" width=80 height=80>
+                </div>
+                <div class="card-block px-2">
+                    <h4 class="card-title">{{ item.product.name }}</h4>
+                    <p class="card-text">
+                        Price: RM {{ item.price }}<br>
+                        <span class="text-muted">&times;{{ item.quantity }}</span>
+                    </p>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    <div class="card-footer py-2">
+        <div class="text-muted d-flex justify-content-end">
+                <p class="p-1 m-0 align-self-center">Total : RM {{ order.get_total_cost }}</p>
+        </div>
+        <div class="text-muted d-flex justify-content-between">
+            <div class="align-self-center">
+                    {% if order.payment_time %}
+                        <p class="m-0">Payment Time:&nbsp;{{ order.payment_time|date:"d M Y" }} {{ order.payment_time|time:"h:i A" }}</p>
+                    {% endif %}
+            </div>
+            <div>
+                {% if order.paid %}<a href="{% url 'orders:invoice_pdf' order.id %}" class="btn btn-secondary">Invoice</a>{% endif %}
+                <a href="{% url 'orders:buy_again' order.id %}" class="btn btn-info mr-1"><i class="fas fa-shopping-cart"></i>&nbsp;Buy again</a>
+            </div>
+        </div>
+    </div>
+</div>
+<br>
+{% empty %}
+    <div class="card-body">
+        <div class="col-sm-12 text-center">
+            <img src="{% static 'img/order.png' %}" width="130" height="130" class="mb-4 mr-3">
+            <h3><strong>There is no order</strong></h3>
+        </div>
+    </div>
+{% endfor %}
